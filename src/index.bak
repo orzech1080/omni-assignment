@@ -1,0 +1,52 @@
+import './main.scss';
+import * as PIXI from 'pixi.js';
+import { gsap } from "gsap";
+import { PixiPlugin } from "gsap/PixiPlugin";
+import shuffleArray from './helpers/shuffleArray';
+import { symbols } from './helpers/symbols';
+import Game from './classes/Game.js';
+
+gsap.registerPlugin(PixiPlugin);
+PixiPlugin.registerPIXI(PIXI);
+
+const midW = window.innerWidth / 2;
+const midH = window.innerHeight /2;
+let game;
+let reels;
+
+const app = new PIXI.Application({
+  view: document.getElementById("c"),
+  width: window.innerWidth,
+  height: window.innerHeight,
+  backgroundColor: 0xAAAAAA
+});
+
+app.loader.baseUrl = 'assets/symbols';
+symbols.forEach(s => {
+  app.loader.add(s, s + '.png');
+})
+app.loader.load(setup);
+
+
+function setup () {
+  const resources = app.loader.resources;
+  const symbolPool = shuffleArray(symbols).slice(0, 3);
+  const prize = 100;
+
+  game = new Game(symbolPool, prize, resources);
+  reels = game.reels;
+
+  app.stage.addChild(game.reelsContainer);
+
+  gsap.to(game.reels[0].elements, {
+    activeElement: symbolPool.length,
+    duration: symbolPool.length,
+    repeat: -1,
+  });
+
+  app.ticker.add(gameLoop);
+}
+
+function gameLoop () {
+  // game.reels[0].drawTexture();
+}
